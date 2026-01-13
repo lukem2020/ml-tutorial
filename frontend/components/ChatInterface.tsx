@@ -17,14 +17,73 @@ interface Message {
   isStreaming?: boolean
 }
 
+interface ChatSession {
+  id: string
+  messages: Message[]
+  createdAt: Date
+  title?: string
+}
+
 export default function ChatInterface() {
-  const [messages, setMessages] = useState<Message[]>([])
+  const [chatSessions, setChatSessions] = useState<ChatSession[]>([])
+  const [currentSessionId, setCurrentSessionId] = useState<string>('')
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isStreaming, setIsStreaming] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const abortControllerRef = useRef<AbortController | null>(null)
+  const initializedRef = useRef(false)
+
+  // Get current session messages
+  const currentSession = chatSessions.find(s => s.id === currentSessionId)
+  const messages = currentSession?.messages || []
+
+  // Helper function to update messages in current session
+  const updateSessionMessages = (updater: (prev: Message[]) => Message[]) => {
+    if (!currentSessionId) return
+    setChatSessions(prev => prev.map(session => 
+      session.id === currentSessionId
+        ? { ...session, messages: updater(session.messages) }
+        : session
+    ))
+  }
+
+  // Initialize first session on mount
+  useEffect(() => {
+    if (!initializedRef.current) {
+      initializedRef.current = true
+      const initialSessionId = Date.now().toString()
+      const initialSession: ChatSession = {
+        id: initialSessionId,
+        messages: [],
+        createdAt: new Date()
+      }
+      setChatSessions([initialSession])
+      setCurrentSessionId(initialSessionId)
+    }
+  }, [])
+
+  // Handle new chat - save current and create new
+  const handleNewChat = () => {
+    // Current session is already saved (we update it in place)
+    // Just create a new empty session
+    const newSessionId = Date.now().toString()
+    const newSession: ChatSession = {
+      id: newSessionId,
+      messages: [],
+      createdAt: new Date()
+    }
+    setChatSessions(prev => [...prev, newSession])
+    setCurrentSessionId(newSessionId)
+    setInput('')
+    // Cancel any ongoing requests
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+      setIsLoading(false)
+      setIsStreaming(false)
+    }
+  }
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -47,6 +106,11 @@ export default function ChatInterface() {
   const handleSend = async () => {
     if (!input.trim() || isLoading) return
 
+    // Ensure we have a current session (should always exist after mount)
+    if (!currentSessionId) {
+      return
+    }
+
     const userMessage: Message = {
       id: Date.now().toString(),
       role: 'user',
@@ -54,7 +118,7 @@ export default function ChatInterface() {
       timestamp: new Date()
     }
 
-    setMessages(prev => [...prev, userMessage])
+    updateSessionMessages(prev => [...prev, userMessage])
     setInput('')
     setIsLoading(true)
     setIsStreaming(true)
@@ -67,7 +131,7 @@ export default function ChatInterface() {
       timestamp: new Date(),
       isStreaming: true
     }
-    setMessages(prev => [...prev, assistantMessage])
+    updateSessionMessages(prev => [...prev, assistantMessage])
 
     abortControllerRef.current = new AbortController()
 
@@ -104,7 +168,7 @@ export default function ChatInterface() {
           const now = Date.now()
           if (now - lastUpdateTime >= UPDATE_INTERVAL || updateBuffer.length > 50) {
             requestAnimationFrame(() => {
-              setMessages(prev => prev.map(msg => 
+              updateSessionMessages(prev => prev.map(msg => 
                 msg.id === assistantMessageId 
                   ? { ...msg, content: accumulatedContent, isStreaming: true }
                   : msg
@@ -116,21 +180,21 @@ export default function ChatInterface() {
           }
         }
 
-        setMessages(prev => prev.map(msg => 
+        updateSessionMessages(prev => prev.map(msg => 
           msg.id === assistantMessageId 
             ? { ...msg, content: accumulatedContent, isStreaming: true }
             : msg
         ))
       }
 
-      setMessages(prev => prev.map(msg => 
+      updateSessionMessages(prev => prev.map(msg => 
         msg.id === assistantMessageId 
           ? { ...msg, isStreaming: false }
           : msg
       ))
     } catch (error: any) {
       if (error.name === 'AbortError') {
-        setMessages(prev => prev.filter(msg => msg.id !== assistantMessageId))
+        updateSessionMessages(prev => prev.filter(msg => msg.id !== assistantMessageId))
         return
       }
 
@@ -141,7 +205,7 @@ export default function ChatInterface() {
         timestamp: new Date(),
         isStreaming: false
       }
-      setMessages(prev => prev.map(msg => 
+      updateSessionMessages(prev => prev.map(msg => 
         msg.id === assistantMessageId ? errorMessage : msg
       ))
     } finally {
@@ -189,10 +253,18 @@ export default function ChatInterface() {
   }
 
   const getGreeting = () => {
-    const hour = new Date().getHours()
-    if (hour < 12) return 'Morning'
-    if (hour < 18) return 'Afternoon'
-    return 'Evening'
+    return 'Welcome'
+  }
+
+  // Format timestamp for display
+  const formatTimestamp = (timestamp: Date) => {
+    const date = new Date(timestamp)
+    const hours = date.getHours()
+    const minutes = date.getMinutes()
+    const ampm = hours >= 12 ? 'PM' : 'AM'
+    const displayHours = hours % 12 || 12
+    const displayMinutes = minutes.toString().padStart(2, '0')
+    return `${displayHours}:${displayMinutes} ${ampm}`
   }
 
   const showWelcome = messages.length === 0
@@ -210,12 +282,11 @@ export default function ChatInterface() {
     <div className={styles.chatLayout}>
       {/* Left Sidebar */}
       <div className={styles.sidebar}>
-        <button className={styles.sidebarButton} title="New Chat">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M10 4V16M4 10H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-          </svg>
-        </button>
-        <button className={styles.sidebarButton} title="Chat History">
+        <button 
+          className={styles.sidebarButton} 
+          title="New Chat"
+          onClick={handleNewChat}
+        >
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
             <path d="M2 5L10 1L18 5V11C18 15.418 14.418 19 10 19C5.582 19 2 15.418 2 11V5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             <path d="M6 10L9 13L14 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -254,7 +325,7 @@ export default function ChatInterface() {
                 </svg>
               </div>
               <h1 className={styles.welcomeGreeting}>
-                {getGreeting()}, NEXUS-PHARMA
+                {getGreeting()}, USER!
               </h1>
               <p className={styles.welcomeSubtext}>
                 How can I help you today?
@@ -464,6 +535,9 @@ export default function ChatInterface() {
                     ) : (
                       <div className={styles.userMessageText}>{message.content}</div>
                     )}
+                  </div>
+                  <div className={styles.messageTimestamp}>
+                    {formatTimestamp(message.timestamp)}
                   </div>
                   {message.role === 'assistant' && message.content && !message.isStreaming && (
                     <button
