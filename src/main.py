@@ -4,6 +4,7 @@ from components import agent, ml_pipeline, config
 
 sys.path.insert(0, str(Path.cwd()))
 
+
 def main():
     """Main entry point for the application."""
     # Start agent
@@ -12,7 +13,7 @@ def main():
             print("Agent started successfully")
     except Exception as e:
         print(f"Agent failed to start: {e}")
-    
+
     # Start ML pipeline
     try:
         ml_pipeline.main()
@@ -23,4 +24,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
