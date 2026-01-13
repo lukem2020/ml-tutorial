@@ -29,7 +29,50 @@ export async function POST(request: NextRequest) {
         const lowerMessage = message.toLowerCase()
         let response = ''
 
-        if (lowerMessage.includes('smiles') || lowerMessage.includes('molecular') || lowerMessage.includes('structure')) {
+        // Check for GLP-1 or specific molecular structure requests
+        if (lowerMessage.includes('glp-1') || lowerMessage.includes('glp1') || 
+            (lowerMessage.includes('molecular structure') && (lowerMessage.includes('glp') || lowerMessage.includes('peptide')))) {
+          response = `Here is the molecular structure of **GLP-1** (Glucagon-like peptide-1):
+
+<molecular-structure name="GLP-1" smiles="CC[C@H](C)[C@@H](C(=O)N[C@@H](C)C(=O)N[C@@H](CC1=CNC2=CC=CC=C21)C(=O)N[C@@H](CC(C)C)C(=O)N[C@@H](C(C)C)C(=O)N[C@@H](CCCCN)C(=O)NCC(=O)N[C@@H](CCCNC(=N)N)C(=O)N)NC(=O)[C@H](CC3=CC=CC=C3)NC(=O)[C@H](CCC(=O)O)NC(=O)[C@H](CCCCN)NC(=O)[C@H](C)NC(=O)[C@H](C)NC(=O)[C@H](CCC(=O)N)NC(=O)CNC(=O)[C@H](CCC(=O)O)NC(=O)[C@H](CC(C)C)NC(=O)[C@H](CC4=CC=C(C=C4)O)NC(=O)[C@H](CO)NC(=O)[C@H](CO)NC(=O)[C@H](C(C)C)NC(=O)[C@H](CC(=O)O)NC(=O)[C@H](CO)NC(=O)[C@H]([C@@H](C)O)NC(=O)[C@H](CC5=CC=CC=C5)NC(=O)[C@H]([C@@H](C)O)NC(=O)CNC(=O)[C@H](CCC(=O)O)NC(=O)[C@H](C)NC(=O)[C@H](CC6=CNC=N6)N" />
+
+**Molecular Information:**
+- **Type**: Peptide hormone
+- **Length**: 30-31 amino acids
+- **Function**: Enhances insulin secretion and regulates glucose metabolism
+- **Structure**: Alpha-helical conformation in active form
+
+**Key Features:**
+- N-terminal histidine residue (H)
+- C-terminal amidation
+- Multiple charged residues for receptor binding
+- Hydrophobic core for structural stability
+
+The structure above shows a simplified 3D representation of the GLP-1 peptide backbone. The interactive viewer allows you to rotate and zoom to examine the molecular conformation.`
+        } else if (lowerMessage.includes('insulin') && (lowerMessage.includes('molecular structure') || lowerMessage.includes('structure') || lowerMessage.includes('show'))) {
+          response = `Here is the molecular structure of **Insulin**:
+
+<molecular-structure name="Insulin" smiles="FVNQHLCGSHLVEALYLVCGERGFFYTPKTRREAEDLQVGQVELGGGPGAGSLQPLALEGSLQKRGIVEQCCTSICSLYQLENYCN" />
+
+**Molecular Information:**
+- **Type**: Peptide hormone (protein)
+- **Structure**: Two polypeptide chains (A-chain: 21 amino acids, B-chain: 30 amino acids)
+- **Function**: Regulates glucose metabolism, promotes glucose uptake by cells
+- **Disulfide bonds**: Three disulfide bridges stabilize the structure
+
+**Key Features:**
+- A-chain and B-chain connected by disulfide bonds
+- Critical for diabetes treatment
+- Highly conserved structure across species
+- Receptor binding domain in B-chain
+
+**Therapeutic Applications:**
+- Type 1 diabetes: Essential replacement therapy
+- Type 2 diabetes: Used when oral medications are insufficient
+- Multiple formulations: Rapid-acting, long-acting, and intermediate-acting
+
+The interactive 3D viewer above shows the insulin peptide structure. You can rotate and zoom to examine the molecular conformation and disulfide bond arrangements.`
+        } else if (lowerMessage.includes('smiles') || lowerMessage.includes('molecular') || lowerMessage.includes('structure')) {
           response = `Analyzing SMILES data for molecular structure patterns...
 
 **Structure Analysis**
