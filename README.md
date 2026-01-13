@@ -1,5 +1,7 @@
 # ml-tutorial
 
+![NEXUS-PHARMA Demo](./demo.gif)
+
 1. Scope
 
 ## Process Overview
