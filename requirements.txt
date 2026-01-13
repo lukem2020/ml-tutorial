@@ -1,0 +1,29 @@
+# Agentic dependencies
+openai
+pandas
+langchain
+fastapi
+uvicorn
+python-dotenv
+tiktoken
+sqlmodel
+httpx
+pydantic
+
+# ML dependencies
+scikit-learn
+pycaret
+scipy
+numpy
+matplotlib
+seaborn
+
+# Frontend dependencies
+nodejs
+npm
+react
+nextjs
+
+# Code formatting and linting
+black
+
