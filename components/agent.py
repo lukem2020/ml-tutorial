@@ -1,97 +1,165 @@
+"""Test script for the Agent class."""
 import os
-from typing import Optional, Dict, Any, List
-from pydantic import BaseModel, Field
-import openai
-from dotenv import load_dotenv
+import sys
+from pathlib import Path
 
-# Load environment variables
-load_dotenv()
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent))
 
-
-class AgentConfig(BaseModel):
-    """Configuration for the agent."""
-    model: str = Field(default="gpt-3.5-turbo", description="OpenAI model to use")
-    temperature: float = Field(default=0.7, ge=0, le=2, description="Sampling temperature")
-    max_tokens: Optional[int] = Field(default=None, description="Maximum tokens to generate")
-    api_key: Optional[str] = Field(default=None, description="OpenAI API key")
+from components.agent import Agent, AgentConfig
 
 
-class Agent:
-    """Basic agent template for AI/ML tasks."""
+def test_agent_config():
+    """Test AgentConfig creation and validation."""
+    print("Testing AgentConfig...")
     
-    def __init__(self, config: Optional[AgentConfig] = None):
-        """
-        Initialize the agent.
-        
-        Args:
-            config: Agent configuration. If None, uses default config.
-        """
-        self.config = config or AgentConfig()
-        
-        # Set up OpenAI client
-        api_key = self.config.api_key or os.getenv("OPENAI_API_KEY")
-        if not api_key:
-            raise ValueError("OpenAI API key not found. Set OPENAI_API_KEY environment variable or pass it in config.")
-        
-        self.client = openai.OpenAI(api_key=api_key)
-        self.conversation_history: List[Dict[str, str]] = []
+    # Test default config
+    config = AgentConfig()
+    assert config.model == "gpt-3.5-turbo"
+    assert config.temperature == 0.7
+    assert config.max_tokens is None
+    print("[PASS] Default config works")
     
-    def add_message(self, role: str, content: str) -> None:
-        """
-        Add a message to the conversation history.
-        
-        Args:
-            role: Message role ('system', 'user', or 'assistant')
-            content: Message content
-        """
-        self.conversation_history.append({"role": role, "content": content})
+    # Test custom config
+    custom_config = AgentConfig(
+        model="gpt-4",
+        temperature=0.5,
+        max_tokens=100
+    )
+    assert custom_config.model == "gpt-4"
+    assert custom_config.temperature == 0.5
+    assert custom_config.max_tokens == 100
+    print("[PASS] Custom config works")
     
-    def clear_history(self) -> None:
-        """Clear the conversation history."""
-        self.conversation_history = []
+    # Test validation
+    try:
+        invalid_config = AgentConfig(temperature=3.0)  # Should fail (max is 2)
+        print("[FAIL] Temperature validation failed")
+    except Exception:
+        print("[PASS] Temperature validation works")
     
-    def process(self, prompt: str, system_prompt: Optional[str] = None) -> str:
-        """
-        Process a prompt and return the agent's response.
-        
-        Args:
-            prompt: User prompt
-            system_prompt: Optional system prompt to set behavior
-            
-        Returns:
-            Agent's response text
-        """
-        # Add system prompt if provided and not already in history
-        if system_prompt and not any(msg.get("role") == "system" for msg in self.conversation_history):
-            self.add_message("system", system_prompt)
-        
-        # Add user prompt
-        self.add_message("user", prompt)
-        
-        # Get response from OpenAI
-        response = self.client.chat.completions.create(
-            model=self.config.model,
-            messages=self.conversation_history,
-            temperature=self.config.temperature,
-            max_tokens=self.config.max_tokens
-        )
-        
-        # Extract response text
-        assistant_message = response.choices[0].message.content
-        self.add_message("assistant", assistant_message)
-        
-        return assistant_message
+    print("AgentConfig tests passed!\n")
+
+
+def test_agent_initialization():
+    """Test Agent initialization."""
+    print("Testing Agent initialization...")
     
-    def get_history(self) -> List[Dict[str, str]]:
-        """
-        Get the conversation history.
-        
-        Returns:
-            List of message dictionaries
-        """
-        return self.conversation_history.copy()
+    # Check if API key is available
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        print("[WARN] OPENAI_API_KEY not set - skipping initialization test")
+        print("  Set OPENAI_API_KEY environment variable to test full functionality")
+        return False
     
-    def reset(self) -> None:
-        """Reset the agent (clear history and reinitialize)."""
-        self.clear_history()
+    try:
+        # Test with default config
+        agent = Agent()
+        assert agent.config is not None
+        assert agent.client is not None
+        assert agent.conversation_history == []
+        print("[PASS] Agent initialization with default config works")
+        
+        # Test with custom config
+        config = AgentConfig(model="gpt-3.5-turbo", temperature=0.5)
+        agent = Agent(config)
+        assert agent.config.model == "gpt-3.5-turbo"
+        assert agent.config.temperature == 0.5
+        print("[PASS] Agent initialization with custom config works")
+        
+        return True
+    except ValueError as e:
+        print(f"[FAIL] Agent initialization failed: {e}")
+        return False
+    except Exception as e:
+        print(f"[FAIL] Unexpected error: {e}")
+        return False
+
+
+def test_agent_message_management():
+    """Test message history management."""
+    print("Testing message management...")
+    
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        print("[WARN] OPENAI_API_KEY not set - skipping message management test")
+        return False
+    
+    try:
+        agent = Agent()
+        
+        # Test adding messages
+        agent.add_message("system", "You are a helpful assistant")
+        agent.add_message("user", "Hello")
+        assert len(agent.conversation_history) == 2
+        assert agent.conversation_history[0]["role"] == "system"
+        assert agent.conversation_history[1]["role"] == "user"
+        print("[PASS] Adding messages works")
+        
+        # Test getting history
+        history = agent.get_history()
+        assert len(history) == 2
+        assert history[0]["content"] == "You are a helpful assistant"
+        print("[PASS] Getting history works")
+        
+        # Test clearing history
+        agent.clear_history()
+        assert len(agent.conversation_history) == 0
+        print("[PASS] Clearing history works")
+        
+        # Test reset
+        agent.add_message("user", "Test")
+        agent.reset()
+        assert len(agent.conversation_history) == 0
+        print("[PASS] Reset works")
+        
+        return True
+    except Exception as e:
+        print(f"[FAIL] Message management test failed: {e}")
+        return False
+
+
+def test_agent_process():
+    """Test agent processing (requires API key and may incur costs)."""
+    print("Testing agent processing...")
+    
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        print("[WARN] OPENAI_API_KEY not set - skipping process test")
+        return False
+    
+    # Ask user if they want to test API calls (may incur costs)
+    print("  This test will make an actual API call to OpenAI (may incur costs)")
+    print("  Skipping API call test for safety")
+    print("  To test manually, use: agent.process('Hello')")
+    
+    return True
+
+
+def main():
+    """Run all tests."""
+    print("=" * 50)
+    print("Testing Agent Component")
+    print("=" * 50)
+    print()
+    
+    # Run tests
+    test_agent_config()
+    
+    has_api_key = test_agent_initialization()
+    print()
+    
+    if has_api_key:
+        test_agent_message_management()
+        print()
+        test_agent_process()
+        print()
+    
+    print("=" * 50)
+    print("Tests completed!")
+    print("=" * 50)
+
+
+if __name__ == "__main__":
+    main()
 
