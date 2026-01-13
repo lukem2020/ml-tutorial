@@ -1,7 +1,11 @@
 import openai
 import dotenv
 import os
-from .components import agent
+import sys
+from pathlib import Path
+from components import agent
+
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
 
