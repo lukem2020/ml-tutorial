@@ -1,0 +1,276 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --tron-blue: #00f0ff;
+  --tron-cyan: #00ffff;
+  --tron-dark: #0a0e27;
+  --tron-darker: #050810;
+  --tron-grid: #00a0a0;
+  --tron-glow: rgba(0, 240, 255, 0.5);
+  --tron-text: #e0f7fa;
+  --tron-accent: #00d4ff;
+  --tron-purple: #7b2fff;
+  --tron-pink: #ff00ff;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--tron-darker);
+  color: var(--tron-text);
+  overflow: hidden;
+  height: 100vh;
+  position: relative;
+}
+
+#__next {
+  height: 100vh;
+  width: 100vw;
+}
+
+/* Animated gradient background */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(0, 240, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 20%, rgba(123, 47, 255, 0.05) 0%, transparent 50%);
+  z-index: 0;
+  animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
+}
+
+/* TRON Grid Background */
+.tron-grid {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    linear-gradient(var(--tron-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--tron-grid) 1px, transparent 1px);
+  background-size: 50px 50px;
+  opacity: 0.15;
+  z-index: 1;
+  animation: gridMove 20s linear infinite;
+  mask-image: radial-gradient(ellipse at center, black 40%, transparent 100%);
+}
+
+@keyframes gridMove {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(50px, 50px);
+  }
+}
+
+/* Scanline effect */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    transparent 50%,
+    rgba(0, 240, 255, 0.03) 50%
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 2;
+  animation: scanline 8s linear infinite;
+}
+
+@keyframes scanline {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(4px);
+  }
+}
+
+/* Glow Effects */
+.glow {
+  text-shadow: 
+    0 0 10px var(--tron-blue),
+    0 0 20px var(--tron-blue),
+    0 0 30px var(--tron-blue),
+    0 0 40px var(--tron-blue);
+  animation: glowPulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes glowPulse {
+  from {
+    text-shadow: 
+      0 0 10px var(--tron-blue),
+      0 0 20px var(--tron-blue),
+      0 0 30px var(--tron-blue);
+  }
+  to {
+    text-shadow: 
+      0 0 20px var(--tron-blue),
+      0 0 30px var(--tron-blue),
+      0 0 40px var(--tron-blue),
+      0 0 50px var(--tron-cyan);
+  }
+}
+
+.glow-box {
+  box-shadow: 
+    0 0 10px var(--tron-glow),
+    0 0 20px var(--tron-glow),
+    0 0 30px var(--tron-glow),
+    inset 0 0 10px var(--tron-glow);
+  transition: all 0.3s ease;
+}
+
+.glow-box:hover {
+  box-shadow: 
+    0 0 20px var(--tron-glow),
+    0 0 40px var(--tron-glow),
+    0 0 60px var(--tron-glow),
+    inset 0 0 15px var(--tron-glow);
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--tron-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--tron-blue);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--tron-cyan);
+}
+
+/* Input and Button Styles */
+input, textarea {
+  background: linear-gradient(
+    135deg,
+    rgba(10, 14, 39, 0.9) 0%,
+    rgba(5, 8, 16, 0.95) 100%
+  );
+  border: 2px solid var(--tron-blue);
+  color: var(--tron-text);
+  padding: 14px 18px;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  box-shadow: 
+    inset 0 2px 4px rgba(0, 240, 255, 0.1),
+    0 0 0 0 rgba(0, 240, 255, 0);
+}
+
+input:focus, textarea:focus {
+  outline: none;
+  border-color: var(--tron-cyan);
+  box-shadow: 
+    0 0 20px rgba(0, 240, 255, 0.4),
+    0 0 40px rgba(0, 255, 255, 0.2),
+    inset 0 2px 4px rgba(0, 240, 255, 0.15);
+  background: linear-gradient(
+    135deg,
+    rgba(10, 14, 39, 0.95) 0%,
+    rgba(5, 8, 16, 1) 100%
+  );
+}
+
+input::placeholder, textarea::placeholder {
+  color: rgba(224, 247, 250, 0.4);
+  font-style: italic;
+}
+
+button {
+  background: transparent;
+  border: 2px solid var(--tron-blue);
+  color: var(--tron-blue);
+  padding: 14px 28px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  position: relative;
+  overflow: hidden;
+  text-shadow: 0 0 10px var(--tron-blue);
+}
+
+button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(0, 240, 255, 0.3),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+button:hover::before {
+  left: 100%;
+}
+
+button:hover {
+  background: var(--tron-blue);
+  color: var(--tron-dark);
+  box-shadow: 
+    0 0 20px var(--tron-glow),
+    0 0 40px var(--tron-glow),
+    0 0 60px var(--tron-blue);
+  transform: translateY(-2px);
+  border-color: var(--tron-cyan);
+}
+
+button:active {
+  transform: translateY(0);
+  box-shadow: 
+    0 0 10px var(--tron-glow),
+    0 0 20px var(--tron-glow);
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+

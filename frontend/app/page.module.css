@@ -1,0 +1,208 @@
+.container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--tron-darker);
+  overflow: hidden;
+}
+
+.header {
+  position: relative;
+  z-index: 10;
+  padding: 28px 40px;
+  border-bottom: 2px solid var(--tron-blue);
+  background: linear-gradient(
+    180deg,
+    rgba(10, 14, 39, 0.95) 0%,
+    rgba(10, 14, 39, 0.85) 100%
+  );
+  backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: 
+    0 4px 20px rgba(0, 240, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 240, 255, 0.3);
+}
+
+.logo {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: 4px;
+  color: var(--tron-blue);
+  margin-bottom: 10px;
+  background: linear-gradient(135deg, var(--tron-blue) 0%, var(--tron-cyan) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+  display: inline-block;
+}
+
+.logo::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--tron-blue), var(--tron-cyan), var(--tron-blue));
+  opacity: 0.6;
+  animation: underlineGlow 2s ease-in-out infinite;
+}
+
+@keyframes underlineGlow {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scaleX(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+.subtitle {
+  font-size: 13px;
+  color: var(--tron-cyan);
+  letter-spacing: 3px;
+  opacity: 0.9;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.main {
+  flex: 1;
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.landing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+  padding: 48px;
+  text-align: center;
+}
+
+.landingContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  max-width: 600px;
+}
+
+.title {
+  font-size: 56px;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--tron-blue) 0%, var(--tron-cyan) 50%, var(--tron-blue) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 3px;
+  line-height: 1.2;
+  animation: titleShimmer 3s ease-in-out infinite;
+  background-size: 200% auto;
+}
+
+@keyframes titleShimmer {
+  0%, 100% {
+    background-position: 0% center;
+  }
+  50% {
+    background-position: 100% center;
+  }
+}
+
+.description {
+  font-size: 16px;
+  color: var(--tron-text);
+  line-height: 1.6;
+  opacity: 0.9;
+}
+
+.startButton {
+  margin-top: 24px;
+  padding: 18px 56px;
+  font-size: 16px;
+  font-weight: 700;
+  border: 2px solid var(--tron-blue);
+  background: rgba(0, 240, 255, 0.05);
+  color: var(--tron-blue);
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+}
+
+.startButton::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: var(--tron-blue);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s ease, height 0.6s ease;
+  z-index: -1;
+}
+
+.startButton:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.startButton:hover {
+  color: var(--tron-dark);
+  box-shadow: 
+    0 0 30px var(--tron-glow),
+    0 0 60px var(--tron-blue),
+    0 0 90px var(--tron-cyan);
+  transform: translateY(-3px) scale(1.05);
+  border-color: var(--tron-cyan);
+}
+
+.startButton:active {
+  transform: translateY(-1px) scale(1.02);
+}
+
+.footer {
+  position: relative;
+  z-index: 10;
+  padding: 20px 40px;
+  border-top: 2px solid var(--tron-blue);
+  background: linear-gradient(
+    0deg,
+    rgba(10, 14, 39, 0.95) 0%,
+    rgba(10, 14, 39, 0.85) 100%
+  );
+  backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: 
+    0 -4px 20px rgba(0, 240, 255, 0.2),
+    inset 0 1px 0 rgba(0, 240, 255, 0.3);
+}
+
+.footerContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--tron-cyan);
+  opacity: 0.7;
+}
+
+.separator {
+  opacity: 0.5;
+}
+
