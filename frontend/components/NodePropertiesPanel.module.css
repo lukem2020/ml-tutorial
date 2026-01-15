@@ -217,6 +217,111 @@
   font-size: 11px;
 }
 
+.totalAvailable {
+  color: #666;
+  font-weight: normal;
+}
+
+.resultQuery {
+  color: #999;
+  font-size: 11px;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+.resultActions {
+  display: flex;
+  gap: 6px;
+}
+
+.viewButton,
+.downloadButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: #333;
+  border: 1px solid #555;
+  color: #e0e0e0;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+  transition: all 0.2s;
+}
+
+.viewButton:hover {
+  background: #3a3a3a;
+  border-color: #4a9eff;
+  color: #4a9eff;
+}
+
+.downloadButton:hover {
+  background: #3a3a3a;
+  border-color: #4ade80;
+  color: #4ade80;
+}
+
+.jsonViewer {
+  margin-top: 16px;
+  border: 1px solid #444;
+  border-radius: 8px;
+  background: #1a1a1a;
+  max-height: 500px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.jsonViewerHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: #252525;
+  border-bottom: 1px solid #444;
+}
+
+.jsonViewerHeader h4 {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e0e0e0;
+  margin: 0;
+}
+
+.jsonContent {
+  flex: 1;
+  overflow: auto;
+  padding: 12px;
+}
+
+.jsonContent pre {
+  margin: 0;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #e0e0e0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.jsonContent::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.jsonContent::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+.jsonContent::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 4px;
+}
+
+.jsonContent::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
 .fieldHeader {
   display: flex;
   justify-content: space-between;

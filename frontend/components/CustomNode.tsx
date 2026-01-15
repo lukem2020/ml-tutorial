@@ -16,14 +16,15 @@ const iconMap: Record<string, React.ComponentType<{ size?: number }>> = {
   'Set Variable': Settings,
 }
 
-export function CustomNode({ data, selected }: NodeProps) {
+export function CustomNode({ id, data, selected }: NodeProps) {
   const Icon = iconMap[data.type] || Database
   const status = data.status || 'pending'
 
   const handleRun = (e: React.MouseEvent) => {
     e.stopPropagation()
-    if (data.onRun) {
-      data.onRun(data.id, data.type)
+    e.preventDefault()
+    if (data.onRun && id) {
+      data.onRun(id, data.type)
     }
   }
 

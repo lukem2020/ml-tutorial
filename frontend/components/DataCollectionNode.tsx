@@ -1,7 +1,7 @@
 'use client'
 
 import { Handle, Position, NodeProps } from 'reactflow'
-import { Database, Search, BookOpen, Dna, Activity, CheckCircle2, Clock, FileText, Play } from 'lucide-react'
+import { Database, Search, BookOpen, Dna, Activity, CheckCircle2, Clock, FileText, Play, FileJson } from 'lucide-react'
 import styles from './DataCollectionNode.module.css'
 
 const dataTypeIcons: Record<string, React.ComponentType<{ size?: number }>> = {
@@ -13,7 +13,7 @@ const dataTypeIcons: Record<string, React.ComponentType<{ size?: number }>> = {
   'Disease Association Data': FileText,
 }
 
-export function DataCollectionNode({ data, selected }: NodeProps) {
+export function DataCollectionNode({ id, data, selected }: NodeProps) {
   const status = data.status || 'pending'
   const dataType = data.dataType || 'Data Collection'
   const Icon = dataTypeIcons[dataType] || Database
@@ -21,8 +21,12 @@ export function DataCollectionNode({ data, selected }: NodeProps) {
 
   const handleRun = (e: React.MouseEvent) => {
     e.stopPropagation()
-    if (data.onRun) {
-      data.onRun(data.id, dataType, data.query || '')
+    e.preventDefault()
+    if (data.onRun && id) {
+      // Pass: nodeId, dataType, script, query
+      data.onRun(id, dataType, data.script, data.query || '')
+    } else {
+      console.warn('Cannot run node: onRun handler or id missing', { hasOnRun: !!data.onRun, id })
     }
   }
 
@@ -56,7 +60,8 @@ export function DataCollectionNode({ data, selected }: NodeProps) {
         )}
         
         {hasResults && (
-          <div className={styles.resultsBadge}>
+          <div className={styles.resultsBadge} title="Click node to view/download JSON results">
+            <FileJson size={10} />
             {data.results.count || 0} result{(data.results.count || 0) !== 1 ? 's' : ''}
           </div>
         )}

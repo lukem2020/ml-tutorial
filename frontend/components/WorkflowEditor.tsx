@@ -44,6 +44,24 @@ export function WorkflowEditor() {
   const [isPropertiesOpen, setIsPropertiesOpen] = useState(false)
   const reactFlowWrapper = useRef<HTMLDivElement>(null)
 
+  // Wrap onNodesChange to ensure onRun handler is always present
+  const wrappedOnNodesChange = useCallback(
+    (changes: any) => {
+      onNodesChange(changes)
+      // After changes, ensure all nodes have onRun handler
+      setNodes((currentNodes) =>
+        currentNodes.map((node) => ({
+          ...node,
+          data: {
+            ...node.data,
+            onRun: handleNodeRun,
+          },
+        }))
+      )
+    },
+    [onNodesChange, setNodes]
+  )
+
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
     [setEdges]
@@ -246,18 +264,25 @@ export function WorkflowEditor() {
   )
 
   const handleNodeRun = useCallback(
-    (nodeId: string, ...args: any[]) => {
+    (nodeIdOrEmpty: string, dataType?: string, script?: string, query?: string) => {
+      // Get nodeId from first argument or find from nodes
+      const nodeId = nodeIdOrEmpty || (dataType && nodes.find(n => n.data.dataType === dataType)?.id) || ''
       const node = nodes.find((n) => n.id === nodeId)
-      if (!node) return
+      
+      if (!node) {
+        console.warn('Node not found for execution:', nodeId)
+        return
+      }
 
       if (node.type === 'hypothesis') {
-        executeHypothesisAnalysis(nodeId, args[0] || node.data.hypothesis || '')
+        // For hypothesis: nodeId, hypothesis (second arg is the hypothesis text)
+        executeHypothesisAnalysis(nodeId, dataTypeOrHypothesis || node.data.hypothesis || '')
       } else if (node.type === 'dataCollection') {
         executeDataCollection(
           nodeId,
-          args[0] || node.data.dataType,
-          args[2] || node.data.query || '',
-          args[1] || node.data.script
+          dataType || node.data.dataType,
+          query || node.data.query || '',
+          script || node.data.script
         )
       } else {
         // Generic node execution
@@ -445,6 +470,7 @@ export function WorkflowEditor() {
               ...node,
               data: {
                 ...node.data,
+                id: node.id,
                 onRun: handleNodeRun,
               },
             }))}

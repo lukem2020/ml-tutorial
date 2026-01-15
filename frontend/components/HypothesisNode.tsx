@@ -4,14 +4,18 @@ import { Handle, Position, NodeProps } from 'reactflow'
 import { FileText, CheckCircle2, Clock, Play } from 'lucide-react'
 import styles from './HypothesisNode.module.css'
 
-export function HypothesisNode({ data, selected }: NodeProps) {
+export function HypothesisNode({ id, data, selected }: NodeProps) {
   const status = data.status || 'pending' // pending, running, completed
   const hasOutput = data.requiredData && data.requiredData.length > 0
 
   const handleRun = (e: React.MouseEvent) => {
     e.stopPropagation()
-    if (data.onRun) {
-      data.onRun(data.id, data.hypothesis || '')
+    e.preventDefault()
+    if (data.onRun && id) {
+      // Pass: nodeId, hypothesis
+      data.onRun(id, data.hypothesis || '')
+    } else {
+      console.warn('Cannot run hypothesis node: onRun handler or id missing', { hasOnRun: !!data.onRun, id })
     }
   }
 
