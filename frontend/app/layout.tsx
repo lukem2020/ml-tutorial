@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Drug Discovery AI - TRON Interface',
-  description: 'AI-powered drug discovery and redesign platform',
+  title: 'Workflow Editor',
+  description: 'Visual workflow editor for drug discovery',
 }
 
 export default function RootLayout({
@@ -17,4 +17,3 @@ export default function RootLayout({
     </html>
   )
 }
-
