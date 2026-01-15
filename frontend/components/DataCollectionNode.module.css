@@ -56,6 +56,33 @@
   margin-left: auto;
 }
 
+.runButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  background: #4a9eff;
+  border: 1px solid #4a9eff;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: 4px;
+  flex-shrink: 0;
+}
+
+.runButton:hover:not(:disabled) {
+  background: #3a8eef;
+  transform: scale(1.1);
+}
+
+.runButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .queryText {
   font-size: 10px;
   color: #999;

@@ -1,7 +1,7 @@
 'use client'
 
 import { Handle, Position, NodeProps } from 'reactflow'
-import { Database, Search, BookOpen, Dna, Activity, CheckCircle2, Clock, FileText } from 'lucide-react'
+import { Database, Search, BookOpen, Dna, Activity, CheckCircle2, Clock, FileText, Play } from 'lucide-react'
 import styles from './DataCollectionNode.module.css'
 
 const dataTypeIcons: Record<string, React.ComponentType<{ size?: number }>> = {
@@ -19,6 +19,13 @@ export function DataCollectionNode({ data, selected }: NodeProps) {
   const Icon = dataTypeIcons[dataType] || Database
   const hasResults = data.results && Object.keys(data.results).length > 0
 
+  const handleRun = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (data.onRun) {
+      data.onRun(data.id, dataType, data.query || '')
+    }
+  }
+
   return (
     <div className={`${styles.dataNode} ${selected ? styles.selected : ''} ${styles[status]}`}>
       <Handle
@@ -30,6 +37,14 @@ export function DataCollectionNode({ data, selected }: NodeProps) {
         <div className={styles.nodeHeader}>
           <Icon size={14} />
           <span className={styles.nodeTitle}>{dataType}</span>
+          <button
+            className={styles.runButton}
+            onClick={handleRun}
+            disabled={status === 'running'}
+            title="Run node"
+          >
+            <Play size={10} />
+          </button>
           {status === 'running' && <Clock size={12} className={styles.statusIcon} />}
           {status === 'completed' && <CheckCircle2 size={12} className={styles.statusIcon} />}
         </div>

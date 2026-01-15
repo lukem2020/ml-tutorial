@@ -18,6 +18,7 @@ import 'reactflow/dist/style.css'
 import { NodeSidebar } from './NodeSidebar'
 import { NodePropertiesPanel } from './NodePropertiesPanel'
 import { HypothesisPropertiesPanel } from './HypothesisPropertiesPanel'
+import { DataCollectionPropertiesPanel } from './DataCollectionPropertiesPanel'
 import { CustomNode } from './CustomNode'
 import { ParentNode } from './ParentNode'
 import { HypothesisNode } from './HypothesisNode'
@@ -70,43 +71,6 @@ export function WorkflowEditor() {
     }
     return 'custom'
   }
-
-  const onDrop = useCallback(
-    (event: React.DragEvent) => {
-      event.preventDefault()
-
-      const type = event.dataTransfer.getData('application/reactflow')
-      const nodeType = event.dataTransfer.getData('application/reactflow/type') || 'custom'
-      
-      if (!type || !reactFlowWrapper.current) {
-        return
-      }
-
-      const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect()
-      const position = {
-        x: event.clientX - reactFlowBounds.left,
-        y: event.clientY - reactFlowBounds.top,
-      }
-
-      const actualNodeType = nodeType === 'parent' ? 'parent' : getNodeTypeFromLabel(type)
-
-      const newNode: Node = {
-        id: `${type.replace(/\s+/g, '-')}-${Date.now()}`,
-        type: actualNodeType,
-        position,
-        data: {
-          label: type,
-          type: type,
-          childrenCount: actualNodeType === 'parent' ? 0 : undefined,
-          status: 'pending',
-          dataType: actualNodeType === 'dataCollection' ? type : undefined,
-        },
-      }
-
-      setNodes((nds) => nds.concat(newNode))
-    },
-    [setNodes]
-  )
 
   const executeHypothesisAnalysis = useCallback(
     async (nodeId: string, hypothesis: string) => {
@@ -162,6 +126,280 @@ export function WorkflowEditor() {
     [setNodes, selectedNode]
   )
 
+  const executeDataCollection = useCallback(
+    async (nodeId: string, dataType: string, query: string, script?: string) => {
+      try {
+        const node = nodes.find((n) => n.id === nodeId)
+        if (!node) return
+
+        // Get hypothesis from connected upstream node if query is empty
+        let searchQuery = query
+        if (!searchQuery) {
+          const incomingEdge = edges.find((e) => e.target === nodeId)
+          if (incomingEdge) {
+            const sourceNode = nodes.find((n) => n.id === incomingEdge.source)
+            if (sourceNode?.data.hypothesis) {
+              searchQuery = sourceNode.data.hypothesis
+            }
+          }
+        }
+
+        // Update node status to running
+        setNodes((nds) =>
+          nds.map((n) =>
+            n.id === nodeId
+              ? {
+                  ...n,
+                  data: {
+                    ...n.data,
+                    status: 'running',
+                  },
+                }
+              : n
+          )
+        )
+
+        // Use custom script if provided, otherwise use mock
+        const nodeScript = script || node.data.script
+        let results
+
+        if (nodeScript) {
+          // Execute Python script via API
+          const response = await fetch('/api/nodes/execute-script', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              script: nodeScript,
+              query: searchQuery || '',
+            }),
+          })
+
+          if (!response.ok) {
+            const errorData = await response.json()
+            throw new Error(errorData.error || 'Failed to execute script')
+          }
+
+          const result = await response.json()
+          results = result.results
+        } else {
+          // Fallback to mock results
+          await new Promise((resolve) => setTimeout(resolve, 2000))
+
+          const mockResults = {
+            'Literature Search': { count: Math.floor(Math.random() * 100) + 10, sources: ['PubMed', 'PMC'] },
+            'GWAS Data': { count: Math.floor(Math.random() * 50) + 5, variants: [] },
+            'Expression Data': { count: Math.floor(Math.random() * 200) + 20, datasets: [] },
+            'Pathway Data': { count: Math.floor(Math.random() * 30) + 5, pathways: [] },
+          }
+
+          results = mockResults[dataType as keyof typeof mockResults] || { count: 0 }
+        }
+
+        // Update the node with results
+        setNodes((nds) =>
+          nds.map((n) =>
+            n.id === nodeId
+              ? {
+                  ...n,
+                  data: {
+                    ...n.data,
+                    results,
+                    status: 'completed',
+                    query: searchQuery,
+                  },
+                }
+              : n
+          )
+        )
+
+        if (selectedNode?.id === nodeId) {
+          setSelectedNode({
+            ...selectedNode,
+            data: {
+              ...selectedNode.data,
+              results,
+              status: 'completed',
+              query: searchQuery,
+            },
+          })
+        }
+      } catch (error) {
+        console.error('Error executing data collection:', error)
+        setNodes((nds) =>
+          nds.map((n) =>
+            n.id === nodeId
+              ? {
+                  ...n,
+                  data: {
+                    ...n.data,
+                    status: 'pending',
+                  },
+                }
+              : n
+          )
+        )
+      }
+    },
+    [nodes, edges, setNodes, selectedNode]
+  )
+
+  const handleNodeRun = useCallback(
+    (nodeId: string, ...args: any[]) => {
+      const node = nodes.find((n) => n.id === nodeId)
+      if (!node) return
+
+      if (node.type === 'hypothesis') {
+        executeHypothesisAnalysis(nodeId, args[0] || node.data.hypothesis || '')
+      } else if (node.type === 'dataCollection') {
+        executeDataCollection(
+          nodeId,
+          args[0] || node.data.dataType,
+          args[2] || node.data.query || '',
+          args[1] || node.data.script
+        )
+      } else {
+        // Generic node execution
+        console.log('Running node:', nodeId, node.type)
+        setNodes((nds) =>
+          nds.map((n) =>
+            n.id === nodeId
+              ? {
+                  ...n,
+                  data: {
+                    ...n.data,
+                    status: 'running',
+                  },
+                }
+              : n
+          )
+        )
+        // Simulate execution
+        setTimeout(() => {
+          setNodes((nds) =>
+            nds.map((n) =>
+              n.id === nodeId
+                ? {
+                    ...n,
+                    data: {
+                      ...n.data,
+                      status: 'completed',
+                    },
+                  }
+                : n
+            )
+          )
+        }, 1500)
+      }
+    },
+    [nodes, setNodes, executeHypothesisAnalysis, executeDataCollection]
+  )
+
+  const onDrop = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault()
+
+      const type = event.dataTransfer.getData('application/reactflow')
+      const nodeType = event.dataTransfer.getData('application/reactflow/type') || 'custom'
+      
+      if (!type || !reactFlowWrapper.current) {
+        return
+      }
+
+      const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect()
+      const position = {
+        x: event.clientX - reactFlowBounds.left,
+        y: event.clientY - reactFlowBounds.top,
+      }
+
+      const actualNodeType = nodeType === 'parent' ? 'parent' : getNodeTypeFromLabel(type)
+
+      const newNode: Node = {
+        id: `${type.replace(/\s+/g, '-')}-${Date.now()}`,
+        type: actualNodeType,
+        position,
+        data: {
+          label: type,
+          type: type,
+          childrenCount: actualNodeType === 'parent' ? 0 : undefined,
+          status: 'pending',
+          dataType: actualNodeType === 'dataCollection' ? type : undefined,
+          onRun: handleNodeRun,
+        },
+      }
+
+      // If it's a Hypothesis Generation node, automatically create connected data nodes
+      if (type === 'Hypothesis Generation') {
+        const dataNodes: Node[] = [
+          {
+            id: `Literature-Search-${Date.now()}`,
+            type: 'dataCollection',
+            position: { x: position.x - 180, y: position.y + 120 },
+            data: {
+              label: 'Literature Search',
+              type: 'Literature Search',
+              status: 'pending',
+              dataType: 'Literature Search',
+              onRun: handleNodeRun,
+            },
+          },
+          {
+            id: `GWAS-Data-${Date.now()}`,
+            type: 'dataCollection',
+            position: { x: position.x - 60, y: position.y + 120 },
+            data: {
+              label: 'GWAS Data',
+              type: 'GWAS Data',
+              status: 'pending',
+              dataType: 'GWAS Data',
+              onRun: handleNodeRun,
+            },
+          },
+          {
+            id: `Expression-Data-${Date.now()}`,
+            type: 'dataCollection',
+            position: { x: position.x + 60, y: position.y + 120 },
+            data: {
+              label: 'Expression Data',
+              type: 'Expression Data',
+              status: 'pending',
+              dataType: 'Expression Data',
+              onRun: handleNodeRun,
+            },
+          },
+          {
+            id: `Pathway-Data-${Date.now()}`,
+            type: 'dataCollection',
+            position: { x: position.x + 180, y: position.y + 120 },
+            data: {
+              label: 'Pathway Data',
+              type: 'Pathway Data',
+              status: 'pending',
+              dataType: 'Pathway Data',
+              onRun: handleNodeRun,
+            },
+          },
+        ]
+
+        // Create edges from hypothesis node to each data node
+        const newEdges: Edge[] = dataNodes.map((dataNode) => ({
+          id: `${newNode.id}-${dataNode.id}`,
+          source: newNode.id,
+          target: dataNode.id,
+          type: 'smoothstep',
+          animated: false,
+        }))
+
+        setNodes((nds) => nds.concat([newNode, ...dataNodes]))
+        setEdges((eds) => eds.concat(newEdges))
+      } else {
+        setNodes((nds) => nds.concat(newNode))
+      }
+    },
+    [setNodes, setEdges, handleNodeRun]
+  )
+
   const deleteSelectedNode = useCallback(() => {
     if (selectedNode) {
       setNodes((nds) => nds.filter((node) => node.id !== selectedNode.id))
@@ -203,7 +441,13 @@ export function WorkflowEditor() {
           className={styles.flowContainer}
         >
           <ReactFlow
-            nodes={nodes}
+            nodes={nodes.map((node) => ({
+              ...node,
+              data: {
+                ...node.data,
+                onRun: handleNodeRun,
+              },
+            }))}
             edges={edges}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
@@ -242,6 +486,28 @@ export function WorkflowEditor() {
               }}
               onDelete={deleteSelectedNode}
               onExecute={executeHypothesisAnalysis}
+            />
+          ) : selectedNode.type === 'dataCollection' ? (
+            <DataCollectionPropertiesPanel
+              node={selectedNode}
+              onUpdate={(updates) => {
+                setNodes((nds) =>
+                  nds.map((node) =>
+                    node.id === selectedNode.id
+                      ? { ...node, data: { ...node.data, ...updates } }
+                      : node
+                  )
+                )
+                setSelectedNode({ ...selectedNode, data: { ...selectedNode.data, ...updates } })
+              }}
+              onClose={() => {
+                setIsPropertiesOpen(false)
+                setSelectedNode(null)
+              }}
+              onDelete={deleteSelectedNode}
+              onExecute={(nodeId, script, query) =>
+                executeDataCollection(nodeId, selectedNode.data.dataType, query, script)
+              }
             />
           ) : (
             <NodePropertiesPanel
