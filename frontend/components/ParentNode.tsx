@@ -1,31 +1,19 @@
 'use client'
 
 import { Handle, Position, NodeProps } from 'reactflow'
-import { 
-  FlaskConical, 
-  Target, 
-  Dna, 
-  Search, 
-  RefreshCw, 
-  Activity,
-  Network,
-  TestTube,
-  Rocket,
-  FileText
-} from 'lucide-react'
 import styles from './ParentNode.module.css'
 
-const stageIconMap: Record<string, React.ComponentType<{ size?: number }>> = {
-  'Hypothesis Generation & Disease Understanding': FileText,
-  'Target Identification': Target,
-  'Target Prioritization & Druggability Assessment': Search,
-  'Structure Analysis & Modeling': Dna,
-  'Virtual Screening & Hit Identification': Search,
-  'Hit-to-Lead Optimization': RefreshCw,
-  'ADMET Prediction': Activity,
-  'Systems Biology & Pathway Analysis': Network,
-  'Experimental Validation': TestTube,
-  'Clinical Candidate Selection & Optimization': Rocket,
+const stageEmojiMap: Record<string, string> = {
+  'Hypothesis Generation & Disease Understanding': '💡',
+  'Target Identification': '🎯',
+  'Target Prioritization & Druggability Assessment': '🔍',
+  'Structure Analysis & Modeling': '🧬',
+  'Virtual Screening & Hit Identification': '🔬',
+  'Hit-to-Lead Optimization': '⚗️',
+  'ADMET Prediction': '📊',
+  'Systems Biology & Pathway Analysis': '🔄',
+  'Experimental Validation': '🧪',
+  'Clinical Candidate Selection & Optimization': '🚀',
 }
 
 const stageNumberMap: Record<string, number> = {
@@ -42,20 +30,39 @@ const stageNumberMap: Record<string, number> = {
 }
 
 export function ParentNode({ data, selected }: NodeProps) {
-  const Icon = stageIconMap[data.type] || FlaskConical
+  const emoji = stageEmojiMap[data.type] || '⚗️'
   const stageNumber = stageNumberMap[data.type] || 0
 
   return (
     <div className={`${styles.parentNode} ${selected ? styles.selected : ''}`}>
       <Handle
         type="target"
+        position={Position.Top}
+        className={styles.handle}
+        id="target-top"
+      />
+      <Handle
+        type="target"
         position={Position.Left}
         className={styles.handle}
+        id="target-left"
+      />
+      <Handle
+        type="target"
+        position={Position.Right}
+        className={styles.handle}
+        id="target-right"
+      />
+      <Handle
+        type="target"
+        position={Position.Bottom}
+        className={styles.handle}
+        id="target-bottom"
       />
       <div className={styles.parentNodeContent}>
         <div className={styles.parentNodeHeader}>
           <div className={styles.stageBadge}>{stageNumber}</div>
-          <Icon size={18} />
+          <span className={styles.nodeEmoji}>{emoji}</span>
           <span className={styles.parentNodeTitle}>{data.label || data.type}</span>
         </div>
         {data.description && (
@@ -69,8 +76,27 @@ export function ParentNode({ data, selected }: NodeProps) {
       </div>
       <Handle
         type="source"
+        position={Position.Top}
+        className={styles.handle}
+        id="source-top"
+      />
+      <Handle
+        type="source"
+        position={Position.Left}
+        className={styles.handle}
+        id="source-left"
+      />
+      <Handle
+        type="source"
         position={Position.Right}
         className={styles.handle}
+        id="source-right"
+      />
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        className={styles.handle}
+        id="source-bottom"
       />
     </div>
   )

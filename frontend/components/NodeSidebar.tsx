@@ -1,44 +1,84 @@
 'use client'
 
-import { X, Database, Zap, Filter, Search, Settings, FileText, FlaskConical, Target, Dna, RefreshCw, Activity, Network, TestTube, Rocket } from 'lucide-react'
+import { X } from 'lucide-react'
 import styles from './NodeSidebar.module.css'
 
 interface NodeSidebarProps {
   onClose: () => void
 }
 
+const nodeEmojiMap: Record<string, string> = {
+  'Hypothesis Generation': '💡',
+  'Literature Search': '📚',
+  'GWAS Data': '🧬',
+  'Expression Data': '📊',
+  'Pathway Data': '🔄',
+  'Hypothesis Generation & Disease Understanding': '💡',
+  'Target Identification': '🎯',
+  'Target Prioritization & Druggability Assessment': '🔍',
+  'Structure Analysis & Modeling': '🧬',
+  'Virtual Screening & Hit Identification': '🔬',
+  'Hit-to-Lead Optimization': '⚗️',
+  'ADMET Prediction': '📊',
+  'Systems Biology & Pathway Analysis': '🔄',
+  'Experimental Validation': '🧪',
+  'Clinical Candidate Selection & Optimization': '🚀',
+  'Data Input': '📥',
+  'Data Output': '📤',
+  'File Read': '📖',
+  'File Write': '💾',
+  'Transform': '⚡',
+  'Filter': '🔍',
+  'Search': '🔎',
+  'Wait': '⏳',
+  'Set Variable': '⚙️',
+  'Schedule Trigger': '⏰',
+  'Chat Message Trigger': '⚡',
+}
+
 const nodeCategories = [
   {
+    name: 'Triggers',
+    emoji: '⚡',
+    nodes: [
+      { 
+        type: 'Schedule Trigger', 
+        isParent: false,
+        description: 'Trigger workflow on a schedule'
+      },
+      { 
+        type: 'Chat Message Trigger', 
+        isParent: false,
+        description: 'Trigger workflow when a chat message is received'
+      },
+    ],
+  },
+  {
     name: 'Stage 1: Hypothesis & Data',
-    icon: FileText,
+    emoji: '💡',
     nodes: [
       { 
         type: 'Hypothesis Generation', 
-        icon: FileText,
         isParent: false,
         description: 'Define and analyze your hypothesis'
       },
       { 
         type: 'Literature Search', 
-        icon: Search,
         isParent: false,
         description: 'Search PubMed and literature databases'
       },
       { 
         type: 'GWAS Data', 
-        icon: Dna,
         isParent: false,
         description: 'Retrieve genetic association data'
       },
       { 
         type: 'Expression Data', 
-        icon: Activity,
         isParent: false,
         description: 'Get gene expression datasets'
       },
       { 
         type: 'Pathway Data', 
-        icon: Network,
         isParent: false,
         description: 'Access pathway and network data'
       },
@@ -46,65 +86,55 @@ const nodeCategories = [
   },
   {
     name: 'Drug Discovery Workflow',
-    icon: FlaskConical,
+    emoji: '⚗️',
     nodes: [
       { 
         type: 'Hypothesis Generation & Disease Understanding', 
-        icon: FileText,
         isParent: true,
         description: 'Stage 1: Define biological question and understand disease context'
       },
       { 
         type: 'Target Identification', 
-        icon: Target,
         isParent: true,
         description: 'Stage 2: Nominate potential therapeutic targets'
       },
       { 
         type: 'Target Prioritization & Druggability Assessment', 
-        icon: Search,
         isParent: true,
         description: 'Stage 3: Evaluate and prioritize targets'
       },
       { 
         type: 'Structure Analysis & Modeling', 
-        icon: Dna,
         isParent: true,
         description: 'Stage 4: Obtain and analyze 3D protein structures'
       },
       { 
         type: 'Virtual Screening & Hit Identification', 
-        icon: Search,
         isParent: true,
         description: 'Stage 5: Screen compound libraries virtually'
       },
       { 
         type: 'Hit-to-Lead Optimization', 
-        icon: RefreshCw,
         isParent: true,
         description: 'Stage 6: Refine hits to generate leads'
       },
       { 
         type: 'ADMET Prediction', 
-        icon: Activity,
         isParent: true,
         description: 'Stage 7: Predict pharmacokinetics and toxicity'
       },
       { 
         type: 'Systems Biology & Pathway Analysis', 
-        icon: Network,
         isParent: true,
         description: 'Stage 8: Model system-wide effects'
       },
       { 
         type: 'Experimental Validation', 
-        icon: TestTube,
         isParent: true,
         description: 'Stage 9: Validate predictions experimentally'
       },
       { 
         type: 'Clinical Candidate Selection & Optimization', 
-        icon: Rocket,
         isParent: true,
         description: 'Stage 10: Select and optimize clinical candidates'
       },
@@ -112,29 +142,29 @@ const nodeCategories = [
   },
   {
     name: 'Data',
-    icon: Database,
+    emoji: '📦',
     nodes: [
-      { type: 'Data Input', icon: Database },
-      { type: 'Data Output', icon: Database },
-      { type: 'File Read', icon: FileText },
-      { type: 'File Write', icon: FileText },
+      { type: 'Data Input' },
+      { type: 'Data Output' },
+      { type: 'File Read' },
+      { type: 'File Write' },
     ],
   },
   {
     name: 'Processing',
-    icon: Zap,
+    emoji: '⚡',
     nodes: [
-      { type: 'Transform', icon: Zap },
-      { type: 'Filter', icon: Filter },
-      { type: 'Search', icon: Search },
+      { type: 'Transform' },
+      { type: 'Filter' },
+      { type: 'Search' },
     ],
   },
   {
     name: 'System',
-    icon: Settings,
+    emoji: '⚙️',
     nodes: [
-      { type: 'Wait', icon: Settings },
-      { type: 'Set Variable', icon: Settings },
+      { type: 'Wait' },
+      { type: 'Set Variable' },
     ],
   },
 ]
@@ -159,7 +189,7 @@ export function NodeSidebar({ onClose }: NodeSidebarProps) {
         {nodeCategories.map((category) => (
           <div key={category.name} className={styles.category}>
             <div className={styles.categoryHeader}>
-              <category.icon size={16} />
+              <span className={styles.categoryEmoji}>{category.emoji}</span>
               <span>{category.name}</span>
             </div>
             <div className={styles.nodeList}>
@@ -171,7 +201,7 @@ export function NodeSidebar({ onClose }: NodeSidebarProps) {
                   onDragStart={(e) => onDragStart(e, node.type, node.isParent)}
                   title={node.description || node.type}
                 >
-                  <node.icon size={14} />
+                  <span className={styles.nodeEmoji}>{nodeEmojiMap[node.type] || '📦'}</span>
                   <span>{node.type}</span>
                 </div>
               ))}

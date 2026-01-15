@@ -1,27 +1,29 @@
 .hypothesisNode {
-  background: linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 100%);
-  border: 2px solid #555;
-  border-radius: 50% 20px;
-  padding: 14px;
+  background: #ffffff;
+  border: 2px solid #fbbf24;
+  border-radius: 16px;
+  padding: 0;
   min-width: 200px;
   max-width: 280px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.2s;
   position: relative;
+  overflow: hidden;
 }
 
 .hypothesisNode.selected {
-  border-color: #4a9eff;
-  box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.2);
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2), 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .hypothesisNode.running {
-  border-color: #ffa500;
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
   animation: pulse 2s ease-in-out infinite;
 }
 
 .hypothesisNode.completed {
-  border-color: #4ade80;
+  border-color: #10b981;
 }
 
 @keyframes pulse {
@@ -36,81 +38,93 @@
 .nodeContent {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
 }
 
 .nodeHeader {
   display: flex;
   align-items: center;
-  gap: 6px;
-  color: #e0e0e0;
+  gap: 8px;
+  color: #374151;
+  padding: 12px;
+  background: #fffbeb;
+  border-bottom: 1px solid #fef3c7;
+}
+
+.nodeEmoji {
+  font-size: 18px;
+  line-height: 1;
+  flex-shrink: 0;
 }
 
 .nodeTitle {
   font-size: 13px;
-  font-weight: 600;
-  color: #e0e0e0;
+  font-weight: 500;
+  color: #111827;
   flex: 1;
+  letter-spacing: -0.01em;
 }
 
 .statusIcon {
   margin-left: auto;
+  color: #6b7280;
 }
 
 .runButton {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   padding: 0;
-  background: #4a9eff;
-  border: 1px solid #4a9eff;
-  border-radius: 4px;
+  background: #6366f1;
+  border: none;
+  border-radius: 6px;
   color: white;
   cursor: pointer;
   transition: all 0.2s;
-  margin-left: 4px;
+  margin-left: auto;
   flex-shrink: 0;
 }
 
 .runButton:hover:not(:disabled) {
-  background: #3a8eef;
-  transform: scale(1.1);
+  background: #4f46e5;
+  transform: scale(1.05);
 }
 
 .runButton:disabled {
-  opacity: 0.4;
+  opacity: 0.5;
   cursor: not-allowed;
+  background: #9ca3af;
 }
 
 .hypothesisText {
-  font-size: 11px;
-  color: #bbb;
-  line-height: 1.4;
-  padding: 6px;
-  background: #1a1a1a;
-  border-radius: 4px;
-  border-left: 2px solid #4a9eff;
+  font-size: 12px;
+  color: #4b5563;
+  line-height: 1.5;
+  padding: 12px;
+  background: #ffffff;
 }
 
 .outputBadge {
-  font-size: 10px;
-  color: #4ade80;
-  padding: 4px 8px;
-  background: rgba(74, 222, 128, 0.1);
-  border-radius: 4px;
+  font-size: 11px;
+  color: #059669;
+  padding: 8px 12px;
+  background: #d1fae5;
+  border-top: 1px solid #e5e7eb;
   text-align: center;
-  border: 1px solid rgba(74, 222, 128, 0.3);
+  font-weight: 500;
 }
 
 .handle {
-  width: 8px;
-  height: 8px;
-  background: #555;
-  border: 2px solid #2a2a2a;
+  width: 12px;
+  height: 12px;
+  background: #ffffff;
+  border: 2px solid #d1d5db;
+  border-radius: 50%;
 }
 
 .handle:hover {
-  background: #4a9eff;
+  background: #6366f1;
+  border-color: #6366f1;
 }

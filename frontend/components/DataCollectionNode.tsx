@@ -1,22 +1,22 @@
 'use client'
 
 import { Handle, Position, NodeProps } from 'reactflow'
-import { Database, Search, BookOpen, Dna, Activity, CheckCircle2, Clock, FileText, Play, FileJson } from 'lucide-react'
+import { CheckCircle2, Clock, Play, FileJson } from 'lucide-react'
 import styles from './DataCollectionNode.module.css'
 
-const dataTypeIcons: Record<string, React.ComponentType<{ size?: number }>> = {
-  'Literature Search': BookOpen,
-  'GWAS Data': Dna,
-  'Omics Data': Dna,
-  'Pathway Data': Activity,
-  'Expression Data': Activity,
-  'Disease Association Data': FileText,
+const dataTypeEmojis: Record<string, string> = {
+  'Literature Search': '📚',
+  'GWAS Data': '🧬',
+  'Omics Data': '🧬',
+  'Pathway Data': '🔄',
+  'Expression Data': '📊',
+  'Disease Association Data': '🔗',
 }
 
 export function DataCollectionNode({ id, data, selected }: NodeProps) {
   const status = data.status || 'pending'
   const dataType = data.dataType || 'Data Collection'
-  const Icon = dataTypeIcons[dataType] || Database
+  const emoji = dataTypeEmojis[dataType] || '📦'
   const hasResults = data.results && Object.keys(data.results).length > 0
 
   const handleRun = (e: React.MouseEvent) => {
@@ -36,10 +36,29 @@ export function DataCollectionNode({ id, data, selected }: NodeProps) {
         type="target"
         position={Position.Top}
         className={styles.handle}
+        id="target-top"
+      />
+      <Handle
+        type="target"
+        position={Position.Left}
+        className={styles.handle}
+        id="target-left"
+      />
+      <Handle
+        type="target"
+        position={Position.Right}
+        className={styles.handle}
+        id="target-right"
+      />
+      <Handle
+        type="target"
+        position={Position.Bottom}
+        className={styles.handle}
+        id="target-bottom"
       />
       <div className={styles.nodeContent}>
         <div className={styles.nodeHeader}>
-          <Icon size={14} />
+          <span className={styles.nodeEmoji}>{emoji}</span>
           <span className={styles.nodeTitle}>{dataType}</span>
           <button
             className={styles.runButton}
@@ -68,9 +87,27 @@ export function DataCollectionNode({ id, data, selected }: NodeProps) {
       </div>
       <Handle
         type="source"
+        position={Position.Top}
+        className={styles.handle}
+        id="source-top"
+      />
+      <Handle
+        type="source"
+        position={Position.Left}
+        className={styles.handle}
+        id="source-left"
+      />
+      <Handle
+        type="source"
+        position={Position.Right}
+        className={styles.handle}
+        id="source-right"
+      />
+      <Handle
+        type="source"
         position={Position.Bottom}
         className={styles.handle}
-        style={{ visibility: hasResults ? 'visible' : 'hidden' }}
+        id="source-bottom"
       />
     </div>
   )

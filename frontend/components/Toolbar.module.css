@@ -3,10 +3,11 @@
   justify-content: space-between;
   align-items: center;
   padding: 8px 16px;
-  background: #2a2a2a;
-  border-bottom: 1px solid #444;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
   height: 48px;
   min-height: 48px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .toolbarLeft {
@@ -20,7 +21,7 @@
   gap: 8px;
   font-weight: 600;
   font-size: 14px;
-  color: #e0e0e0;
+  color: #111827;
 }
 
 .toolbarRight {
@@ -34,17 +35,19 @@
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  background: #333;
-  border: 1px solid #444;
-  color: #e0e0e0;
-  border-radius: 4px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  color: #374151;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
-  transition: background 0.2s;
+  font-weight: 500;
+  transition: all 0.2s;
 }
 
 .toolbarButton:hover {
-  background: #3a3a3a;
+  background: #f9fafb;
+  border-color: #d1d5db;
 }
 
 .toolbarButtonPrimary {
@@ -52,16 +55,18 @@
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  background: #4a9eff;
-  border: 1px solid #4a9eff;
+  background: #6366f1;
+  border: 1px solid #6366f1;
   color: white;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
-  transition: background 0.2s;
+  transition: all 0.2s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .toolbarButtonPrimary:hover {
-  background: #3a8eef;
+  background: #4f46e5;
+  border-color: #4f46e5;
 }

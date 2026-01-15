@@ -1,53 +1,66 @@
 .node {
-  background: #2a2a2a;
-  border: 2px solid #444;
+  background: #ffffff;
+  border: 1px solid #ddd;
   border-radius: 8px;
-  padding: 12px;
+  padding: 0;
   min-width: 150px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: all 0.2s;
+  overflow: hidden;
 }
 
 .node.selected {
-  border-color: #4a9eff;
-  box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.2);
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1), 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .nodeContent {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0;
 }
 
 .nodeHeader {
   display: flex;
   align-items: center;
-  gap: 6px;
-  color: #e0e0e0;
+  gap: 8px;
+  color: #374151;
+  padding: 12px;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.nodeEmoji {
+  font-size: 18px;
+  line-height: 1;
+  flex-shrink: 0;
 }
 
 .nodeTitle {
   font-size: 13px;
   font-weight: 500;
-  color: #e0e0e0;
+  color: #111827;
+  letter-spacing: -0.01em;
 }
 
 .nodeDescription {
   font-size: 11px;
-  color: #999;
-  margin-top: 4px;
+  color: #6b7280;
+  padding: 8px 12px;
+  background: #ffffff;
+  line-height: 1.4;
 }
 
 .runButton {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   padding: 0;
-  background: #4a9eff;
-  border: 1px solid #4a9eff;
-  border-radius: 4px;
+  background: #6366f1;
+  border: none;
+  border-radius: 6px;
   color: white;
   cursor: pointer;
   transition: all 0.2s;
@@ -56,22 +69,25 @@
 }
 
 .runButton:hover:not(:disabled) {
-  background: #3a8eef;
-  transform: scale(1.1);
+  background: #4f46e5;
+  transform: scale(1.05);
 }
 
 .runButton:disabled {
-  opacity: 0.4;
+  opacity: 0.5;
   cursor: not-allowed;
+  background: #9ca3af;
 }
 
 .handle {
-  width: 8px;
-  height: 8px;
-  background: #555;
-  border: 2px solid #2a2a2a;
+  width: 12px;
+  height: 12px;
+  background: #ffffff;
+  border: 2px solid #d1d5db;
+  border-radius: 50%;
 }
 
 .handle:hover {
-  background: #4a9eff;
+  background: #6366f1;
+  border-color: #6366f1;
 }

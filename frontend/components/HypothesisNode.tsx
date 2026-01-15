@@ -1,7 +1,7 @@
 'use client'
 
 import { Handle, Position, NodeProps } from 'reactflow'
-import { FileText, CheckCircle2, Clock, Play } from 'lucide-react'
+import { CheckCircle2, Clock, Play } from 'lucide-react'
 import styles from './HypothesisNode.module.css'
 
 export function HypothesisNode({ id, data, selected }: NodeProps) {
@@ -25,10 +25,29 @@ export function HypothesisNode({ id, data, selected }: NodeProps) {
         type="target"
         position={Position.Top}
         className={styles.handle}
+        id="target-top"
+      />
+      <Handle
+        type="target"
+        position={Position.Left}
+        className={styles.handle}
+        id="target-left"
+      />
+      <Handle
+        type="target"
+        position={Position.Right}
+        className={styles.handle}
+        id="target-right"
+      />
+      <Handle
+        type="target"
+        position={Position.Bottom}
+        className={styles.handle}
+        id="target-bottom"
       />
       <div className={styles.nodeContent}>
         <div className={styles.nodeHeader}>
-          <FileText size={14} />
+          <span className={styles.nodeEmoji}>💡</span>
           <span className={styles.nodeTitle}>Hypothesis Generation</span>
           <button
             className={styles.runButton}
@@ -58,9 +77,27 @@ export function HypothesisNode({ id, data, selected }: NodeProps) {
       </div>
       <Handle
         type="source"
+        position={Position.Top}
+        className={styles.handle}
+        id="source-top"
+      />
+      <Handle
+        type="source"
+        position={Position.Left}
+        className={styles.handle}
+        id="source-left"
+      />
+      <Handle
+        type="source"
+        position={Position.Right}
+        className={styles.handle}
+        id="source-right"
+      />
+      <Handle
+        type="source"
         position={Position.Bottom}
         className={styles.handle}
-        style={{ visibility: hasOutput ? 'visible' : 'hidden' }}
+        id="source-bottom"
       />
     </div>
   )

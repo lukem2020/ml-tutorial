@@ -92,6 +92,27 @@ export function NodePropertiesPanel({
             className={styles.input}
           />
         </div>
+
+        {node.data.webhookId && (
+          <div className={styles.field}>
+            <label>Webhook ID</label>
+            <div className={styles.webhookDisplay}>
+              <code className={styles.webhookCode}>{node.data.webhookId}</code>
+              <button
+                className={styles.copyButton}
+                onClick={() => {
+                  navigator.clipboard.writeText(node.data.webhookId || '')
+                }}
+                title="Copy webhook ID"
+              >
+                📋
+              </button>
+            </div>
+            <p className={styles.helpText}>
+              Use this webhook ID to configure your chat integration
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )

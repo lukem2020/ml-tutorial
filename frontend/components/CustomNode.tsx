@@ -1,23 +1,23 @@
 'use client'
 
 import { Handle, Position, NodeProps } from 'reactflow'
-import { Database, Zap, Filter, Search, Settings, FileText, X, Play } from 'lucide-react'
+import { Play } from 'lucide-react'
 import styles from './CustomNode.module.css'
 
-const iconMap: Record<string, React.ComponentType<{ size?: number }>> = {
-  'Data Input': Database,
-  'Data Output': Database,
-  'File Read': FileText,
-  'File Write': FileText,
-  'Transform': Zap,
-  'Filter': Filter,
-  'Search': Search,
-  'Wait': Settings,
-  'Set Variable': Settings,
+const emojiMap: Record<string, string> = {
+  'Data Input': '📥',
+  'Data Output': '📤',
+  'File Read': '📖',
+  'File Write': '💾',
+  'Transform': '⚡',
+  'Filter': '🔍',
+  'Search': '🔎',
+  'Wait': '⏳',
+  'Set Variable': '⚙️',
 }
 
 export function CustomNode({ id, data, selected }: NodeProps) {
-  const Icon = iconMap[data.type] || Database
+  const emoji = emojiMap[data.type] || '📦'
   const status = data.status || 'pending'
 
   const handleRun = (e: React.MouseEvent) => {
@@ -32,12 +32,31 @@ export function CustomNode({ id, data, selected }: NodeProps) {
     <div className={`${styles.node} ${selected ? styles.selected : ''}`}>
       <Handle
         type="target"
+        position={Position.Top}
+        className={styles.handle}
+        id="target-top"
+      />
+      <Handle
+        type="target"
         position={Position.Left}
         className={styles.handle}
+        id="target-left"
+      />
+      <Handle
+        type="target"
+        position={Position.Right}
+        className={styles.handle}
+        id="target-right"
+      />
+      <Handle
+        type="target"
+        position={Position.Bottom}
+        className={styles.handle}
+        id="target-bottom"
       />
       <div className={styles.nodeContent}>
         <div className={styles.nodeHeader}>
-          <Icon size={14} />
+          <span className={styles.nodeEmoji}>{emoji}</span>
           <span className={styles.nodeTitle}>{data.label || data.type}</span>
           <button
             className={styles.runButton}
@@ -54,8 +73,27 @@ export function CustomNode({ id, data, selected }: NodeProps) {
       </div>
       <Handle
         type="source"
+        position={Position.Top}
+        className={styles.handle}
+        id="source-top"
+      />
+      <Handle
+        type="source"
+        position={Position.Left}
+        className={styles.handle}
+        id="source-left"
+      />
+      <Handle
+        type="source"
         position={Position.Right}
         className={styles.handle}
+        id="source-right"
+      />
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        className={styles.handle}
+        id="source-bottom"
       />
     </div>
   )

@@ -19,10 +19,12 @@ import { NodeSidebar } from './NodeSidebar'
 import { NodePropertiesPanel } from './NodePropertiesPanel'
 import { HypothesisPropertiesPanel } from './HypothesisPropertiesPanel'
 import { DataCollectionPropertiesPanel } from './DataCollectionPropertiesPanel'
+import { TriggerPropertiesPanel } from './TriggerPropertiesPanel'
 import { CustomNode } from './CustomNode'
 import { ParentNode } from './ParentNode'
 import { HypothesisNode } from './HypothesisNode'
 import { DataCollectionNode } from './DataCollectionNode'
+import { TriggerNode } from './TriggerNode'
 import { Toolbar } from './Toolbar'
 import styles from './WorkflowEditor.module.css'
 
@@ -31,6 +33,7 @@ const nodeTypes: NodeTypes = {
   parent: ParentNode,
   hypothesis: HypothesisNode,
   dataCollection: DataCollectionNode,
+  trigger: TriggerNode,
 }
 
 const initialNodes: Node[] = []
@@ -83,6 +86,7 @@ export function WorkflowEditor() {
   }, [])
 
   const getNodeTypeFromLabel = (label: string): string => {
+    if (label === 'Schedule Trigger' || label === 'Chat Message Trigger') return 'trigger'
     if (label === 'Hypothesis Generation') return 'hypothesis'
     if (['Literature Search', 'GWAS Data', 'Expression Data', 'Pathway Data', 'Omics Data'].includes(label)) {
       return 'dataCollection'
@@ -276,7 +280,7 @@ export function WorkflowEditor() {
 
       if (node.type === 'hypothesis') {
         // For hypothesis: nodeId, hypothesis (second arg is the hypothesis text)
-        executeHypothesisAnalysis(nodeId, dataTypeOrHypothesis || node.data.hypothesis || '')
+        executeHypothesisAnalysis(nodeId, dataType || node.data.hypothesis || '')
       } else if (node.type === 'dataCollection') {
         executeDataCollection(
           nodeId,
@@ -340,6 +344,15 @@ export function WorkflowEditor() {
 
       const actualNodeType = nodeType === 'parent' ? 'parent' : getNodeTypeFromLabel(type)
 
+      // Generate webhook ID for trigger nodes (UUID-like format)
+      const generateWebhookId = () => {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+          const r = (Math.random() * 16) | 0
+          const v = c === 'x' ? r : (r & 0x3) | 0x8
+          return v.toString(16)
+        })
+      }
+
       const newNode: Node = {
         id: `${type.replace(/\s+/g, '-')}-${Date.now()}`,
         type: actualNodeType,
@@ -350,6 +363,9 @@ export function WorkflowEditor() {
           childrenCount: actualNodeType === 'parent' ? 0 : undefined,
           status: 'pending',
           dataType: actualNodeType === 'dataCollection' ? type : undefined,
+          triggerType: actualNodeType === 'trigger' ? (type === 'Chat Message Trigger' ? 'chat' : 'schedule') : undefined,
+          schedule: actualNodeType === 'trigger' && type !== 'Chat Message Trigger' ? 'Every 5 minutes' : undefined,
+          webhookId: actualNodeType === 'trigger' && type === 'Chat Message Trigger' ? generateWebhookId() : undefined,
           onRun: handleNodeRun,
         },
       }
@@ -629,7 +645,26 @@ export function WorkflowEditor() {
         </div>
 
         {isPropertiesOpen && selectedNode && (
-          selectedNode.type === 'hypothesis' ? (
+          selectedNode.type === 'trigger' ? (
+            <TriggerPropertiesPanel
+              node={selectedNode}
+              onUpdate={(updates) => {
+                setNodes((nds) =>
+                  nds.map((node) =>
+                    node.id === selectedNode.id
+                      ? { ...node, data: { ...node.data, ...updates } }
+                      : node
+                  )
+                )
+                setSelectedNode({ ...selectedNode, data: { ...selectedNode.data, ...updates } })
+              }}
+              onClose={() => {
+                setIsPropertiesOpen(false)
+                setSelectedNode(null)
+              }}
+              onDelete={deleteSelectedNode}
+            />
+          ) : selectedNode.type === 'hypothesis' ? (
             <HypothesisPropertiesPanel
               node={selectedNode}
               onUpdate={(updates) => {
