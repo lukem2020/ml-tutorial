@@ -1,0 +1,78 @@
+.parentNode {
+  background: linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 100%);
+  border: 2px solid #555;
+  border-radius: 12px;
+  padding: 16px;
+  min-width: 280px;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s;
+}
+
+.parentNode.selected {
+  border-color: #4a9eff;
+  box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.2), 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.parentNodeContent {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.parentNodeHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #e0e0e0;
+}
+
+.stageBadge {
+  background: #4a9eff;
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.parentNodeTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e0e0e0;
+  flex: 1;
+  line-height: 1.4;
+}
+
+.parentNodeDescription {
+  font-size: 11px;
+  color: #999;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.childrenInfo {
+  font-size: 10px;
+  color: #666;
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px solid #333;
+  font-style: italic;
+}
+
+.handle {
+  width: 10px;
+  height: 10px;
+  background: #4a9eff;
+  border: 2px solid #2a2a2a;
+}
+
+.handle:hover {
+  background: #6ab0ff;
+  transform: scale(1.2);
+}

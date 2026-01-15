@@ -18,11 +18,13 @@ import 'reactflow/dist/style.css'
 import { NodeSidebar } from './NodeSidebar'
 import { NodePropertiesPanel } from './NodePropertiesPanel'
 import { CustomNode } from './CustomNode'
+import { ParentNode } from './ParentNode'
 import { Toolbar } from './Toolbar'
 import styles from './WorkflowEditor.module.css'
 
 const nodeTypes: NodeTypes = {
   custom: CustomNode,
+  parent: ParentNode,
 }
 
 const initialNodes: Node[] = []
@@ -61,6 +63,8 @@ export function WorkflowEditor() {
       event.preventDefault()
 
       const type = event.dataTransfer.getData('application/reactflow')
+      const nodeType = event.dataTransfer.getData('application/reactflow/type') || 'custom'
+      
       if (!type || !reactFlowWrapper.current) {
         return
       }
@@ -72,12 +76,13 @@ export function WorkflowEditor() {
       }
 
       const newNode: Node = {
-        id: `${type}-${Date.now()}`,
-        type: 'custom',
+        id: `${type.replace(/\s+/g, '-')}-${Date.now()}`,
+        type: nodeType,
         position,
         data: {
           label: type,
           type: type,
+          childrenCount: nodeType === 'parent' ? 0 : undefined,
         },
       }
 
