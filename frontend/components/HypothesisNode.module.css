@@ -1,12 +1,13 @@
 .hypothesisNode {
-  background: #2a2a2a;
+  background: linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 100%);
   border: 2px solid #555;
-  border-radius: 8px;
-  padding: 12px;
+  border-radius: 50% 20px;
+  padding: 14px;
   min-width: 200px;
   max-width: 280px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   transition: all 0.2s;
+  position: relative;
 }
 
 .hypothesisNode.selected {

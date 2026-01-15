@@ -439,12 +439,148 @@ export function WorkflowEditor() {
     }
   }, [selectedNode, setNodes, setEdges])
 
+  const executeWorkflow = useCallback(async () => {
+    if (nodes.length === 0) {
+      console.log('No nodes to execute')
+      return
+    }
+
+    // Build dependency graph and find execution order (topological sort)
+    const nodeMap = new Map(nodes.map((n) => [n.id, n]))
+    const incomingEdges = new Map<string, string[]>() // nodeId -> [source nodeIds]
+    const outgoingEdges = new Map<string, string[]>() // nodeId -> [target nodeIds]
+    
+    nodes.forEach((node) => {
+      incomingEdges.set(node.id, [])
+      outgoingEdges.set(node.id, [])
+    })
+
+    edges.forEach((edge) => {
+      const sources = incomingEdges.get(edge.target) || []
+      sources.push(edge.source)
+      incomingEdges.set(edge.target, sources)
+
+      const targets = outgoingEdges.get(edge.source) || []
+      targets.push(edge.target)
+      outgoingEdges.set(edge.source, targets)
+    })
+
+    // Find nodes with no incoming edges (start nodes)
+    const startNodes = nodes.filter((node) => {
+      const incoming = incomingEdges.get(node.id) || []
+      return incoming.length === 0
+    })
+
+    if (startNodes.length === 0) {
+      // If no clear start nodes, execute in creation order
+      console.log('No clear start nodes, executing in order')
+      const nodeOrder = [...nodes]
+      
+      for (const node of nodeOrder) {
+        if (node.type === 'hypothesis') {
+          await executeHypothesisAnalysis(node.id, node.data.hypothesis || '')
+        } else if (node.type === 'dataCollection') {
+          await executeDataCollection(
+            node.id,
+            node.data.dataType,
+            node.data.query || '',
+            node.data.script
+          )
+        }
+        // Small delay between nodes
+        await new Promise((resolve) => setTimeout(resolve, 500))
+      }
+      return
+    }
+
+    // Topological sort using BFS (Kahn's algorithm)
+    const executionOrder: string[] = []
+    const queue: string[] = startNodes.map((n) => n.id)
+    const inDegree = new Map<string, number>()
+    
+    nodes.forEach((node) => {
+      inDegree.set(node.id, (incomingEdges.get(node.id) || []).length)
+    })
+
+    while (queue.length > 0) {
+      const currentId = queue.shift()!
+      executionOrder.push(currentId)
+
+      const targets = outgoingEdges.get(currentId) || []
+      for (const targetId of targets) {
+        const currentInDegree = inDegree.get(targetId) || 0
+        const newInDegree = currentInDegree - 1
+        inDegree.set(targetId, newInDegree)
+        
+        if (newInDegree === 0) {
+          queue.push(targetId)
+        }
+      }
+    }
+
+    // Execute nodes in order
+    console.log('Executing workflow in order:', executionOrder)
+    
+    for (const nodeId of executionOrder) {
+      const node = nodeMap.get(nodeId)
+      if (!node) continue
+
+      try {
+        // Update status to running
+        setNodes((nds) =>
+          nds.map((n) =>
+            n.id === nodeId
+              ? { ...n, data: { ...n.data, status: 'running' } }
+              : n
+          )
+        )
+
+        if (node.type === 'hypothesis') {
+          await executeHypothesisAnalysis(node.id, node.data.hypothesis || '')
+        } else if (node.type === 'dataCollection') {
+          // Get query from connected upstream node if needed
+          let query = node.data.query || ''
+          if (!query) {
+            const incoming = incomingEdges.get(node.id) || []
+            if (incoming.length > 0) {
+              const sourceNode = nodeMap.get(incoming[0])
+              if (sourceNode?.data.hypothesis) {
+                query = sourceNode.data.hypothesis
+              }
+            }
+          }
+          
+          await executeDataCollection(
+            node.id,
+            node.data.dataType,
+            query,
+            node.data.script
+          )
+        }
+
+        // Small delay between nodes
+        await new Promise((resolve) => setTimeout(resolve, 300))
+      } catch (error) {
+        console.error(`Error executing node ${nodeId}:`, error)
+        // Continue with next node even if one fails
+      }
+    }
+
+    console.log('Workflow execution completed')
+  }, [
+    nodes,
+    edges,
+    executeHypothesisAnalysis,
+    executeDataCollection,
+    setNodes,
+  ])
+
   return (
     <div className={styles.editorContainer}>
       <Toolbar
         onSave={() => console.log('Save workflow')}
         onLoad={() => console.log('Load workflow')}
-        onExecute={() => console.log('Execute workflow')}
+        onExecute={executeWorkflow}
       />
       
       <div className={styles.mainContent}>

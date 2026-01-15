@@ -1,12 +1,14 @@
 .dataNode {
-  background: #2a2a2a;
+  background: linear-gradient(145deg, #2a2a2a 0%, #252525 100%);
   border: 2px solid #555;
-  border-radius: 8px;
+  border-radius: 2px;
   padding: 12px;
   min-width: 180px;
   max-width: 240px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   transition: all 0.2s;
+  position: relative;
+  transform: rotate(0deg);
 }
 
 .dataNode.selected {
