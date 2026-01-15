@@ -9,6 +9,42 @@ interface NodeSidebarProps {
 
 const nodeCategories = [
   {
+    name: 'Stage 1: Hypothesis & Data',
+    icon: FileText,
+    nodes: [
+      { 
+        type: 'Hypothesis Generation', 
+        icon: FileText,
+        isParent: false,
+        description: 'Define and analyze your hypothesis'
+      },
+      { 
+        type: 'Literature Search', 
+        icon: Search,
+        isParent: false,
+        description: 'Search PubMed and literature databases'
+      },
+      { 
+        type: 'GWAS Data', 
+        icon: Dna,
+        isParent: false,
+        description: 'Retrieve genetic association data'
+      },
+      { 
+        type: 'Expression Data', 
+        icon: Activity,
+        isParent: false,
+        description: 'Get gene expression datasets'
+      },
+      { 
+        type: 'Pathway Data', 
+        icon: Network,
+        isParent: false,
+        description: 'Access pathway and network data'
+      },
+    ],
+  },
+  {
     name: 'Drug Discovery Workflow',
     icon: FlaskConical,
     nodes: [

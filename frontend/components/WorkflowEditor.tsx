@@ -17,14 +17,19 @@ import ReactFlow, {
 import 'reactflow/dist/style.css'
 import { NodeSidebar } from './NodeSidebar'
 import { NodePropertiesPanel } from './NodePropertiesPanel'
+import { HypothesisPropertiesPanel } from './HypothesisPropertiesPanel'
 import { CustomNode } from './CustomNode'
 import { ParentNode } from './ParentNode'
+import { HypothesisNode } from './HypothesisNode'
+import { DataCollectionNode } from './DataCollectionNode'
 import { Toolbar } from './Toolbar'
 import styles from './WorkflowEditor.module.css'
 
 const nodeTypes: NodeTypes = {
   custom: CustomNode,
   parent: ParentNode,
+  hypothesis: HypothesisNode,
+  dataCollection: DataCollectionNode,
 }
 
 const initialNodes: Node[] = []
@@ -58,6 +63,14 @@ export function WorkflowEditor() {
     event.dataTransfer.dropEffect = 'move'
   }, [])
 
+  const getNodeTypeFromLabel = (label: string): string => {
+    if (label === 'Hypothesis Generation') return 'hypothesis'
+    if (['Literature Search', 'GWAS Data', 'Expression Data', 'Pathway Data', 'Omics Data'].includes(label)) {
+      return 'dataCollection'
+    }
+    return 'custom'
+  }
+
   const onDrop = useCallback(
     (event: React.DragEvent) => {
       event.preventDefault()
@@ -75,20 +88,78 @@ export function WorkflowEditor() {
         y: event.clientY - reactFlowBounds.top,
       }
 
+      const actualNodeType = nodeType === 'parent' ? 'parent' : getNodeTypeFromLabel(type)
+
       const newNode: Node = {
         id: `${type.replace(/\s+/g, '-')}-${Date.now()}`,
-        type: nodeType,
+        type: actualNodeType,
         position,
         data: {
           label: type,
           type: type,
-          childrenCount: nodeType === 'parent' ? 0 : undefined,
+          childrenCount: actualNodeType === 'parent' ? 0 : undefined,
+          status: 'pending',
+          dataType: actualNodeType === 'dataCollection' ? type : undefined,
         },
       }
 
       setNodes((nds) => nds.concat(newNode))
     },
     [setNodes]
+  )
+
+  const executeHypothesisAnalysis = useCallback(
+    async (nodeId: string, hypothesis: string) => {
+      try {
+        const response = await fetch('/api/nodes/analyze-hypothesis', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ hypothesis }),
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to analyze hypothesis')
+        }
+
+        const result = await response.json()
+
+        // Update the node with the results
+        setNodes((nds) =>
+          nds.map((node) =>
+            node.id === nodeId
+              ? {
+                  ...node,
+                  data: {
+                    ...node.data,
+                    hypothesis,
+                    requiredData: result.requiredData,
+                    status: result.status,
+                  },
+                }
+              : node
+          )
+        )
+
+        // Update selected node if it's the one we just updated
+        if (selectedNode?.id === nodeId) {
+          setSelectedNode({
+            ...selectedNode,
+            data: {
+              ...selectedNode.data,
+              hypothesis,
+              requiredData: result.requiredData,
+              status: result.status,
+            },
+          })
+        }
+      } catch (error) {
+        console.error('Error executing hypothesis analysis:', error)
+        throw error
+      }
+    },
+    [setNodes, selectedNode]
   )
 
   const deleteSelectedNode = useCallback(() => {
@@ -152,24 +223,46 @@ export function WorkflowEditor() {
         </div>
 
         {isPropertiesOpen && selectedNode && (
-          <NodePropertiesPanel
-            node={selectedNode}
-            onUpdate={(updates) => {
-              setNodes((nds) =>
-                nds.map((node) =>
-                  node.id === selectedNode.id
-                    ? { ...node, data: { ...node.data, ...updates } }
-                    : node
+          selectedNode.type === 'hypothesis' ? (
+            <HypothesisPropertiesPanel
+              node={selectedNode}
+              onUpdate={(updates) => {
+                setNodes((nds) =>
+                  nds.map((node) =>
+                    node.id === selectedNode.id
+                      ? { ...node, data: { ...node.data, ...updates } }
+                      : node
+                  )
                 )
-              )
-              setSelectedNode({ ...selectedNode, data: { ...selectedNode.data, ...updates } })
-            }}
-            onClose={() => {
-              setIsPropertiesOpen(false)
-              setSelectedNode(null)
-            }}
-            onDelete={deleteSelectedNode}
-          />
+                setSelectedNode({ ...selectedNode, data: { ...selectedNode.data, ...updates } })
+              }}
+              onClose={() => {
+                setIsPropertiesOpen(false)
+                setSelectedNode(null)
+              }}
+              onDelete={deleteSelectedNode}
+              onExecute={executeHypothesisAnalysis}
+            />
+          ) : (
+            <NodePropertiesPanel
+              node={selectedNode}
+              onUpdate={(updates) => {
+                setNodes((nds) =>
+                  nds.map((node) =>
+                    node.id === selectedNode.id
+                      ? { ...node, data: { ...node.data, ...updates } }
+                      : node
+                  )
+                )
+                setSelectedNode({ ...selectedNode, data: { ...selectedNode.data, ...updates } })
+              }}
+              onClose={() => {
+                setIsPropertiesOpen(false)
+                setSelectedNode(null)
+              }}
+              onDelete={deleteSelectedNode}
+            />
+          )
         )}
       </div>
     </div>
