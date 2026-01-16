@@ -370,73 +370,7 @@ export function WorkflowEditor() {
         },
       }
 
-      // If it's a Hypothesis Generation node, automatically create connected data nodes
-      if (type === 'Hypothesis Generation') {
-        const dataNodes: Node[] = [
-          {
-            id: `Literature-Search-${Date.now()}`,
-            type: 'dataCollection',
-            position: { x: position.x - 180, y: position.y + 120 },
-            data: {
-              label: 'Literature Search',
-              type: 'Literature Search',
-              status: 'pending',
-              dataType: 'Literature Search',
-              onRun: handleNodeRun,
-            },
-          },
-          {
-            id: `GWAS-Data-${Date.now()}`,
-            type: 'dataCollection',
-            position: { x: position.x - 60, y: position.y + 120 },
-            data: {
-              label: 'GWAS Data',
-              type: 'GWAS Data',
-              status: 'pending',
-              dataType: 'GWAS Data',
-              onRun: handleNodeRun,
-            },
-          },
-          {
-            id: `Expression-Data-${Date.now()}`,
-            type: 'dataCollection',
-            position: { x: position.x + 60, y: position.y + 120 },
-            data: {
-              label: 'Expression Data',
-              type: 'Expression Data',
-              status: 'pending',
-              dataType: 'Expression Data',
-              onRun: handleNodeRun,
-            },
-          },
-          {
-            id: `Pathway-Data-${Date.now()}`,
-            type: 'dataCollection',
-            position: { x: position.x + 180, y: position.y + 120 },
-            data: {
-              label: 'Pathway Data',
-              type: 'Pathway Data',
-              status: 'pending',
-              dataType: 'Pathway Data',
-              onRun: handleNodeRun,
-            },
-          },
-        ]
-
-        // Create edges from hypothesis node to each data node
-        const newEdges: Edge[] = dataNodes.map((dataNode) => ({
-          id: `${newNode.id}-${dataNode.id}`,
-          source: newNode.id,
-          target: dataNode.id,
-          type: 'smoothstep',
-          animated: false,
-        }))
-
-        setNodes((nds) => nds.concat([newNode, ...dataNodes]))
-        setEdges((eds) => eds.concat(newEdges))
-      } else {
-        setNodes((nds) => nds.concat(newNode))
-      }
+      setNodes((nds) => nds.concat(newNode))
     },
     [setNodes, setEdges, handleNodeRun]
   )
